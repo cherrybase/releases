@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Cherry-Libs</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <style>
+      body {
+        background-color: #faf0e6;
+      }
+      #content {
+        width: 100%;
+        padding-left: 10%;
+        padding-right: 10%;
+      }
+      .entry-title {
+        text-align: center;
+      }
+      hr {
+        background-image: url(./assets/gauze.png);
+        height: 0.75em;
+        border: none;
+        margin: 0.75em 0;
+      }
+      #search-form {
+        justify-content: center;
+      }
+      .hidden {
+        display: none;
+      }
+
+      .btn:focus {
+        outline: none;
+        box-shadow: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div id="content">
+        <h1 class="entry-title">Cherry-Libs – All Releases</h1>
+        <form id="search-form" class="form-inline">
+          <div class="form-group mx-1">
+            <select class="form-control shadow-none" name="owner" id="owner" required readonly>
+              <option value="cherrybase">cherrybase</option>
+            </select>
+          </div>
+          <div class="form-group mx-1">
+            <select class="form-control shadow-none" name="repo" id="repo" required>
+              <option value="">select repo</option>
+              <option value="cherry-webpick">cherry-webpick</option>
+            </select>
+          </div>
+          <div class="form-group mx-1">
+            <select class="form-control shadow-none" name="branch" id="branch" required readonly>
+              <option value="publish">publish</option>
+            </select>
+          </div>
+          <div class="form-group mx-1">
+            <button type="submit" class="btn btn-primary px-3" name="search-btn" id="search-btn">
+              <span class="search-btn-text">Search</span>
+              <span class="search-btn-spinner hidden spinner-border spinner-border-sm"></span>
+              <span class="search-btn-spinner-text hidden">loading...</span>
+            </button>
+          </div>
+        </form>
+
+        <hr />
+
+        <div id="unstable-releases" class="hidden">
+          <h2>cherry-webpick - git builds</h2>
+          <p>UNSTABLE, NOT FOR PRODUCTION</p>
+          <ul id="unstable-releases-list"></ul>
+        </div>
+
+        <div id="stable-releases-1x" class="hidden">
+          <h2>cherry-webpick - all 1.x versions</h2>
+          <ul id="stable-releases-1x-list"></ul>
+        </div>
+
+        <div class="hidden">
+          <h2>cherry-webpick - all 1.x versions</h2>
+          <ul>
+            <li>
+              jQuery Core 1.4.1 -
+              <a
+                class="open-sri-modal"
+                href="https://code.jquery.com/jquery-1.4.1.js"
+                data-hash="sha256-ntyfgTeB7KKq1t5474XNvpLuMrsKVnkb5NoPp7Rywdg="
+                >uncompressed</a
+              >,
+              <a
+                class="open-sri-modal"
+                href="https://code.jquery.com/jquery-1.4.1.min.js"
+                data-hash="sha256-LOx49zn73f7YUs15NNJTDnzEyPFLOGc7A7pfuICtTMc="
+                >minified</a
+              >
+            </li>
+            <li>
+              jQuery Core 1.4.0 -
+              <a
+                class="open-sri-modal"
+                href="https://code.jquery.com/jquery-1.4.js"
+                data-hash="sha256-iCknuarbJQS1xqgjvYyMUW8h3sbkQf4sj6Io41lRvMg="
+                >uncompressed</a
+              >,
+              <a
+                class="open-sri-modal"
+                href="https://code.jquery.com/jquery-1.4.min.js"
+                data-hash="sha256-iauvHiRxsAUlsGlASOF5wPOaJnTjvLNEYOprxIAYgr4="
+                >minified</a
+              >
+            </li>
+            <li>
+              jQuery Core 1.3.2 -
+              <a
+                class="open-sri-modal"
+                href="https://code.jquery.com/jquery-1.3.2.js"
+                data-hash="sha256-IzpdFr7lpkvzvBmr48yBKh4GGUNfAcFj9ih3Okaf9xk="
+                >uncompressed</a
+              >,
+              <a
+                class="open-sri-modal"
+                href="https://code.jquery.com/jquery-1.3.2.min.js"
+                data-hash="sha256-yDcKLQUDWenVBazEEeb0V6SbITYKIebLySKbrTp2eJk="
+                >minified</a
+              >,
+              <a
+                class="open-sri-modal"
+                href="https://code.jquery.com/jquery-1.3.2.pack.js"
+                data-hash="sha256-yDcKLQUDWenVBazEEeb0V6SbITYKIebLySKbrTp2eJk="
+                >packed</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+    <!-- <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script> -->
+    <script>
+      $(window).on("load", function () {
+        console.log("App loaded");
+      });
+
+      /* App func */
+      $("#search-form").submit(async function(event) {
+        event.preventDefault();
+
+        showBtnLoader({ id: "search-btn" });
+
+        let values = {}
+        $(this).serialize().split("&").map(el => {
+          let field = el.split("=");
+          values[field[0]] = field[1];
+        });
+        let { owner, repo, branch } = values;
+        
+        let unstableReleases = await getCommits({ owner, repo, sha: branch });
+        $("#unstable-releases").removeClass("hidden");
+        $("#unstable-releases-list").append(getList({owner, repo, results: unstableReleases}));
+
+        let stableReleases = await getTags({ owner, repo });
+        $("#stable-releases-1x").removeClass("hidden");
+        $("#stable-releases-1x-list").append(getList({owner, repo, results: stableReleases}));
+
+        hideBtnLoader({ id: "search-btn" });
+      });
+
+      /* App utils */
+      function showBtnLoader({ id }){
+        $(`#${id} > span.${id}-text`).addClass("hidden");
+        $(`#${id} > span.${id}-spinner`).removeClass("hidden");
+        $(`#${id} > span.${id}-spinner-text`).removeClass("hidden");
+      }
+      function hideBtnLoader({ id }){
+        $(`#${id} > span.${id}-text`).removeClass("hidden");
+        $(`#${id} > span.${id}-spinner`).addClass("hidden");
+        $(`#${id} > span.${id}-spinner-text`).addClass("hidden");
+      }
+      function getList({ owner, repo, results }){ //TODO needs more work
+        let itemlist = ``;
+        results.forEach(el => {
+          let item = `<li>
+            cherry-webpick ${el.name ? el.name : 'git build'}${el.commit.committer ? '<span> ( '+el.commit.committer.date+' )</span>' : ''} -
+            <a href="${getUrl({ owner, repo, data: el })}">uncompressed</a>,
+            <a href="${getUrl({ owner, repo, data: el })}">minified</a>
+          </li>`
+          itemlist = itemlist + item;
+        });
+        return itemlist;
+      }
+      function getUrl({ owner, repo, data }){
+        return `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${data.sha || data.commit.sha}/cdn/CherryAgent.globals.js`;
+      }
+
+      /* Github apis */
+      async function getRepo({ owner, repo, ...rest }){
+        try {
+          let rawRes = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "accept": "application/vnd.github.v3+json"
+            },
+          });
+          let res = await rawRes.json();
+          // console.log("getRepo successful >", res);
+          return res;
+        } catch (error) {
+          // console.error("getRepo failed >", error);
+          throw error;
+        }
+      }
+      async function getOrganizationRepos({ org, ...rest }){
+        try {
+          let rawRes = await fetch(`https://api.github.com/orgs/${org}/repos`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "accept": "application/vnd.github.v3+json"
+            },
+          });
+          let res = await rawRes.json();
+          // console.log("getOrganizationRepos successful >", res);
+          return res;
+        } catch (error) {
+          // console.error("getOrganizationRepos failed >", error);
+          throw error;
+        }
+      }
+      async function getCommits({ owner, repo, per_page = 100, page = 1, sha, api = "commits", ...rest }){
+        // sha - string -	query	SHA or branch to start listing commits from. Default: the repository’s default branch (usually master).
+        try {
+          let rawRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/${api}?${sha ? `sha=${sha}&` : ""}per_page=${per_page}&page=${page}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "accept": "application/vnd.github.v3+json"
+            },
+          });
+          let res = await rawRes.json();
+          if(res && res.length == per_page){
+            let _res = await getCommits({ owner, repo, per_page, page: page+1 });
+            res = res.concat(_res);
+          }
+          // console.log("getCommits successful >", res);
+          return res;
+        } catch (error) {
+          // console.error("getCommits failed >", error);
+          throw error;
+        }
+      }
+      async function getTags(args){
+        return getCommits({...args, api: "tags"});
+      }
+      async function getContent({ owner, repo, path = "package.json", ref, ...rest }){
+        // ref - string - query	The name of the commit/branch/tag. Default: the repository’s default branch (usually master)
+        try {
+          let rawRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}${ref ? `?ref=${ref}` : ""}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "accept": "application/vnd.github.v3+json"
+            },
+          });
+          let res = await rawRes.json();
+          let content = JSON.parse(atob(res.content));
+          // console.log("getContent successful >", {res, content});
+          return content;
+        } catch (error) {
+          // console.error("getContent failed >", error);
+          throw error;
+        }
+      }
+    
+      /* References */
+      // https://www.geeksforgeeks.org/introduction-semantic-versioning/
+      // https://docs.github.com/en/rest/reference
+    </script>
+  </body>
+</html>
