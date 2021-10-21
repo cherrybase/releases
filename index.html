@@ -172,11 +172,14 @@
         
         let unstableReleases = await getCommits({ owner, repo, sha: branch });
         $("#unstable-releases").removeClass("hidden");
-        $("#unstable-releases-list").append(getList({owner, repo, results: unstableReleases}));
+        $("#unstable-releases-list").empty();
+        $("#unstable-releases-list").append(getList({owner, repo, results: unstableReleases, type: 'unstable'}));
 
-        let stableReleases = await getTags({ owner, repo });
+        // let stableReleases = await getTags({ owner, repo });
+        let stableReleases = await getCommits({ owner, repo, sha: branch+'_tag' });
         $("#stable-releases-1x").removeClass("hidden");
-        $("#stable-releases-1x-list").append(getList({owner, repo, results: stableReleases}));
+        $("#stable-releases-1x-list").empty();
+        $("#stable-releases-1x-list").append(getList({owner, repo, results: stableReleases, type: 'stable'}));
 
         hideBtnLoader({ id: "search-btn" });
       });
@@ -192,20 +195,27 @@
         $(`#${id} > span.${id}-spinner`).addClass("hidden");
         $(`#${id} > span.${id}-spinner-text`).addClass("hidden");
       }
-      function getList({ owner, repo, results }){ //TODO needs more work
+      function getList({ owner, repo, results, type }){ //TODO needs more work
         let itemlist = ``;
-        results.forEach(el => {
+        results.forEach(data => {
           let item = `<li>
-            cherry-webpick ${el.name ? el.name : 'git build'}${el.commit.committer ? '<span> ( '+el.commit.committer.date+' )</span>' : ''} -
-            <a href="${getUrl({ owner, repo, data: el })}">uncompressed</a>,
-            <a href="${getUrl({ owner, repo, data: el })}">minified</a>
+            ${getName({ data, type })} ${getDate({ data })} -
+            <a href="${getUrl({ owner, repo, data, type })}">uncompressed</a>,
+            <a href="${getUrl({ owner, repo, data, type })}">minified</a>
           </li>`
           itemlist = itemlist + item;
         });
         return itemlist;
       }
-      function getUrl({ owner, repo, data }){
-        return `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${data.sha || data.commit.sha}/cdn/CherryAgent.globals.js`;
+      function getName({ data, type }){
+        let derivedVersion = data.commit.message.startsWith("v") ? data.commit.message : '-';
+        return `cherry-webpick ${type === 'unstable' ? 'git build' : derivedVersion}`
+      }
+      function getDate({ data }){
+        return `<span>( ${new Date(data.commit.committer.date).toLocaleString()} )</span>`;
+      }
+      function getUrl({ owner, repo, data, type }){
+        return `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${data.sha}/cdn/CherryAgent.globals.js`;
       }
 
       /* Github apis */
